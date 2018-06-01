@@ -1,0 +1,26 @@
+<ul>
+  <% @documents.each do |file| %>
+    <li>
+      <form action="/<%= file %>/delete" method="post">
+        <a href="/<%= file %>"><%= file %></a>
+        <a href="/<%= file %>/edit">Edit</a>
+        <button type="submit">Delete</button>
+      </form>
+    </li>
+  <% end %>
+</ul>
+<section>
+  <p><a href="/new">New Document</a></p>
+</section>
+<section>
+  <% if session[:username] %>
+    <form action="/users/signout" method="post">
+      <p>
+        <em>Signed in as <%= session[:username] %>. </em>
+        <button type="submit">Sign Out</button>
+      </p>
+    </form>
+  <% else %>
+  <p class="user-status"><a href="/users/signin">Sign In</a></p>
+<% end %>
+</section>

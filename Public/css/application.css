@@ -1,0 +1,14 @@
+body {
+  margin: 2% 5%;
+  font-family: sans-serif;
+}
+
+li {
+  list-style: circle;
+}
+
+.message {
+  background-color: #f7f585;
+  margin: 5px 0;
+  padding: 10px;
+}
