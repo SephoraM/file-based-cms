@@ -1,0 +1,7 @@
+---
+developer: !ruby/string:BCrypt::Password
+  str: "$2a$10$wVc9tBGQAbLnxt5GDFq9Yu3h4s9YkLh2gC2dMgiaGpRfwIcEDP4/u"
+  version: 2a
+  cost: 10
+  salt: "$2a$10$wVc9tBGQAbLnxt5GDFq9Yu"
+  checksum: 3h4s9YkLh2gC2dMgiaGpRfwIcEDP4/u

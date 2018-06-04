@@ -2,10 +2,20 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'tilt/erubis'
 require 'redcarpet'
+require 'yaml'
+require 'bcrypt'
 
 configure do
   enable :sessions
   set :session_secret, 'secret'
+end
+
+def encrypt_password(password)
+  BCrypt::Password.create(password)
+end
+
+def correct_password?(password, db_password)
+  BCrypt::Password.new(db_password) == password
 end
 
 def render_if_markdown(path, file_name)
@@ -19,6 +29,31 @@ def data_path
   else
     File.expand_path('../data', __FILE__)
   end
+end
+
+def credentials_path
+  if ENV['RACK_ENV'] == 'test'
+    File.expand_path('../test/users.yml', __FILE__)
+  else
+    File.expand_path('../users.yml', __FILE__)
+  end
+end
+
+def load_user_credentials
+  YAML.load_file(credentials_path)
+end
+
+def add_user_credentials(username, password)
+  user_credentials = load_user_credentials || {}
+  user_credentials[username] = password
+  File.open(credentials_path, 'w') do |f|
+    YAML.dump(user_credentials, f)
+  end
+end
+
+def valid_user_credentials?(name, password)
+  credentials = load_user_credentials
+  credentials.key?(name) && correct_password?(password, credentials[name])
 end
 
 def create_document(name, content = "")
@@ -35,8 +70,19 @@ def error_message_if_invalid(filename)
   end
 end
 
-def admin?(username, password)
-  username == 'admin' && password == 'secret'
+def signed_in?
+  session.key?(:username)
+end
+
+def redirect_to_index_if_not_signed_in
+  unless signed_in?
+    session[:message] = 'You must be signed in to do that.'
+    redirect '/'
+  end
+end
+
+before do
+  add_user_credentials('developer', encrypt_password('letmein'))
 end
 
 get '/' do
@@ -51,9 +97,11 @@ get '/users/signin' do
   erb :signin
 end
 
-# submit username and password
+# submit username and passwords
 post '/users/signin' do
-  if admin?(params[:username], params[:password])
+  username = params[:username]
+
+  if valid_user_credentials?(username, params[:password])
     session[:message] = "Welcome!"
     session[:username] = params[:username]
     redirect '/'
@@ -73,6 +121,8 @@ end
 
 # render for the creation of documents
 get '/new' do
+  redirect_to_index_if_not_signed_in
+
   erb :new, layout: :layout
 end
 
@@ -91,6 +141,8 @@ end
 
 # render for any file that is selected
 get '/:file_name/edit' do
+  redirect_to_index_if_not_signed_in
+
   path = File.join(data_path, params[:file_name])
   @file_body = File.read(path)
 
@@ -99,6 +151,8 @@ end
 
 # submit the 'saved changes'
 post '/:file_name/edit' do
+  redirect_to_index_if_not_signed_in
+
   path = File.join(data_path, params[:file_name])
   File.write(path, params[:contents])
 
@@ -108,6 +162,8 @@ end
 
 # create the new document
 post '/new' do
+  redirect_to_index_if_not_signed_in
+
   error = error_message_if_invalid(params[:new_document])
   if error
     status 422
@@ -121,6 +177,8 @@ end
 
 # delete a specified file
 post '/:file_name/delete' do
+  redirect_to_index_if_not_signed_in
+
   path = File.join(data_path, params[:file_name])
   File.delete(path)
 
