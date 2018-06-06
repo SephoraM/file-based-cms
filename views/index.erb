@@ -1,16 +1,18 @@
 <ul>
   <% @documents.each do |file| %>
     <li>
-      <form action="/<%= file %>/delete" method="post">
+      <form action="/<%= file %>/alter" method="post">
         <a href="/<%= file %>"><%= file %></a>
         <a href="/<%= file %>/edit">Edit</a>
-        <button type="submit">Delete</button>
+        <button type="submit" name="duplicate" value="duplicate">Duplicate</button>
+        <button type="submit" name="delete" value="delete">Delete</button>
       </form>
     </li>
   <% end %>
 </ul>
 <section>
   <p><a href="/new">New Document</a></p>
+  <p><a href="/upload">Upload Image</a></p>
 </section>
 <section>
   <% if session[:username] %>
@@ -21,6 +23,7 @@
       </p>
     </form>
   <% else %>
-  <p class="user-status"><a href="/users/signin">Sign In</a></p>
-<% end %>
+    <p><em>Want to be a registered user? </em> <a href="/users/signup">Sign up</a></p>
+    <p><em>Already a member? </em> <a href="/users/signin">Sign In</a></p>
+  <% end %>
 </section>

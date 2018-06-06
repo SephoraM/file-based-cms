@@ -1,29 +1,29 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    backports (3.11.3)
+    backports (2.8.2)
     bcrypt (3.1.12)
     erubis (2.7.0)
     minitest (5.11.3)
     multi_json (1.13.1)
     mustermann (1.0.2)
     rack (2.0.5)
-    rack-protection (2.0.1)
+    rack-protection (2.0.2)
       rack
     rack-test (1.0.0)
       rack (>= 1.0, < 3)
     redcarpet (3.4.0)
-    sinatra (2.0.1)
+    sinatra (2.0.2)
       mustermann (~> 1.0)
       rack (~> 2.0)
-      rack-protection (= 2.0.1)
+      rack-protection (= 2.0.2)
       tilt (~> 2.0)
-    sinatra-contrib (2.0.1)
-      backports (>= 2.0)
+    sinatra-contrib (2.0.2)
+      backports (~> 2.8.2)
       multi_json
       mustermann (~> 1.0)
-      rack-protection (= 2.0.1)
-      sinatra (= 2.0.1)
+      rack-protection (= 2.0.2)
+      sinatra (= 2.0.2)
       tilt (>= 1.3, < 3)
     tilt (2.0.8)
 
@@ -36,7 +36,7 @@ DEPENDENCIES
   minitest
   rack-test
   redcarpet
-  sinatra (~> 2.0, >= 2.0.1)
+  sinatra (~> 2.0.2)
   sinatra-contrib
 
 RUBY VERSION

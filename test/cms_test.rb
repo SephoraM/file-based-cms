@@ -22,6 +22,10 @@ class CMSTest < Minitest::Test
 
   def teardown
     FileUtils.rm_rf(data_path)
+
+    File.open(credentials_path, 'w') do |f|
+      YAML.dump({}, f)
+    end
   end
 
   def session
@@ -79,7 +83,7 @@ class CMSTest < Minitest::Test
     assert_equal "hello.txt does not exist.", session[:message]
   end
 
-  def test_editing_document_signed_in
+  def test_edit_document_signed_in
     create_document "changes.txt"
 
     get "/changes.txt/edit", {}, admin_credentials
@@ -89,7 +93,7 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, %q(<button type="submit")
   end
 
-  def test_editing_document_signed_out
+  def test_edit_document_signed_out
     create_document "changes.txt"
 
     get "/changes.txt/edit"
@@ -153,7 +157,7 @@ class CMSTest < Minitest::Test
     post '/new', new_document: "   "
 
     assert_equal 422, last_response.status
-    assert_includes last_response.body, "A name is required."
+    assert_includes last_response.body, "Please enter the complete filename."
   end
 
   def test_filename_created_signed_in
@@ -181,9 +185,11 @@ class CMSTest < Minitest::Test
   end
 
   def test_deleting_document_signed_in
+    get '/', {}, admin_credentials
+
     create_document "test.txt"
 
-    post "/test.txt/delete", {}, admin_credentials
+    post "/test.txt/alter", delete: "delete"
 
     assert_equal 302, last_response.status
     assert_equal "test.txt has been deleted.", session[:message]
@@ -192,10 +198,27 @@ class CMSTest < Minitest::Test
     refute_includes last_response.body, %q(href="/test.txt")
   end
 
-  def test_deleting_document_signed_out
+  def test_duplicate_document_signed_in
+    get '/', {}, admin_credentials
+
+    create_document "changes.txt", "content to copy"
+
+    post "/changes.txt/duplicate", duplicate_document: "duplicate"
+
+    assert_equal 302, last_response.status
+
+    get last_response['location']
+    assert_includes last_response.body, "A duplicate copy of changes.txt"
+
+    get "/duplicate.txt"
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "content to copy"
+  end
+
+  def test_alter_document_signed_out
     create_document "test.txt"
 
-    post "/test.txt/delete"
+    post "/test.txt/alter"
 
     assert_equal 302, last_response.status
     assert_equal 'You must be signed in to do that.', session[:message]
@@ -230,6 +253,24 @@ class CMSTest < Minitest::Test
 
     get last_response["location"]
     assert_includes last_response.body, 'Signed in as admin'
+  end
+
+  def test_invalid_signup_credentials
+    post "/users/signup", username: "admin", password: "supersecret"
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "That username already exists."
+  end
+
+  def test_signup
+    post "/users/signup", username: "bob", password: "supersecret"
+
+    assert_equal 302, last_response.status
+    assert_equal "Hello, bob! A big welcome to our newest member", session[:message]
+    assert_equal "bob", session[:username]
+
+    get last_response["location"]
+    assert_includes last_response.body, 'Signed in as bob'
   end
 
   def test_signout

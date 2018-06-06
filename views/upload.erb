@@ -1,0 +1,7 @@
+<form action="/upload" method="post">
+  <label for="image">The image you would like to upload:</label>
+  <div>
+    <input type="text" name="image" value="<%= params[:image] || "" %>">
+    <button type="submit">Upload</button>
+  </div>
+</form>

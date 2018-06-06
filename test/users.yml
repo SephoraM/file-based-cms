@@ -1,13 +1,1 @@
----
-admin: !ruby/string:BCrypt::Password
-  str: "$2a$10$OXXZSyDybnHjX7KzHh4VWOBT6y2C2wpUj9yKb7Yqc64Wp09bD5TeG"
-  version: 2a
-  cost: 10
-  salt: "$2a$10$OXXZSyDybnHjX7KzHh4VWO"
-  checksum: BT6y2C2wpUj9yKb7Yqc64Wp09bD5TeG
-developer: !ruby/string:BCrypt::Password
-  str: "$2a$10$IDbPUxlFQiuw/XNJLqjs5OulKuLNmSoSWDLbZZhMr1XfpAaHC2UEy"
-  version: 2a
-  cost: 10
-  salt: "$2a$10$IDbPUxlFQiuw/XNJLqjs5O"
-  checksum: ulKuLNmSoSWDLbZZhMr1XfpAaHC2UEy
+--- {}
