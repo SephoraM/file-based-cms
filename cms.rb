@@ -256,7 +256,7 @@ end
 ##### render selected document #####
 
 get '/:file_name' do
-  path = File.join(data_path, params[:file_name])
+  path = File.join(data_path, File.basename(params[:file_name]))
 
   if File.file?(path)
     render_correct_filetype(path, params[:file_name])
