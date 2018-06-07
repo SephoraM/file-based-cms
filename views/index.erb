@@ -6,12 +6,30 @@
         <a href="/<%= file %>/edit">Edit</a>
         <button type="submit" name="duplicate" value="duplicate">Duplicate</button>
         <button type="submit" name="delete" value="delete">Delete</button>
+        <% if version_history_exists?(file) %>
+          <span class="history">
+            This document has been updated.
+            <a href="/<%= file %>/history"> View old content</a>
+          </span>
+        <% end %>
       </form>
     </li>
   <% end %>
 </ul>
 <section>
   <p><a href="/new">New Document</a></p>
+</section>
+<ul>
+  <% @images.each do |image| %>
+    <li>
+      <form action="/<%= image %>/alter" method="post">
+        <a href="/<%= image %>"><%= image %></a>
+        <button type="submit" name="delete" value="delete">Delete</button>
+      </form>
+    </li>
+  <% end %>
+</ul>
+<section>
   <p><a href="/upload">Upload Image</a></p>
 </section>
 <section>

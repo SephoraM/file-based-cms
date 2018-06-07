@@ -1,6 +1,6 @@
 body {
-  margin: 2% 5%;
   font-family: sans-serif;
+  margin: 2% 5%;
 }
 
 li {
@@ -11,4 +11,9 @@ li {
   background-color: #f7f585;
   margin: 5px 0;
   padding: 10px;
+}
+
+.history {
+  font-size: 0.9em;
+  padding-left: 1em;
 }

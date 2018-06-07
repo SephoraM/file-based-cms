@@ -1,10 +1,4 @@
 ---
-bob: !ruby/string:BCrypt::Password
-  str: "$2a$10$bRTgWkNSuuX7kNMAbnzYLOg/sXBq4wLa/5jrJYXGtce5miN0Nh9tK"
-  version: 2a
-  cost: 10
-  salt: "$2a$10$bRTgWkNSuuX7kNMAbnzYLO"
-  checksum: g/sXBq4wLa/5jrJYXGtce5miN0Nh9tK
 developer: !ruby/string:BCrypt::Password
   str: "$2a$10$1lHt/2lJgPzAS.q1X0a9hun3BQDqjgEmVsyZk8bL6flDEKAFuVYqm"
   version: 2a

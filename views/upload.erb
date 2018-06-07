@@ -1,7 +1,7 @@
-<form action="/upload" method="post">
+<form action="/upload" method="post" enctype="multipart/form-data">
   <label for="image">The image you would like to upload:</label>
   <div>
-    <input type="text" name="image" value="<%= params[:image] || "" %>">
+    <input type="file" accept="image/*" name="image">
     <button type="submit">Upload</button>
   </div>
 </form>

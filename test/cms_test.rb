@@ -17,13 +17,17 @@ class CMSTest < Minitest::Test
 
   def setup
     FileUtils.mkdir_p(data_path)
-    add_user_credentials('admin', encrypt_password('secret'))
+    add_user_credentials('admin', 'secret')
   end
 
   def teardown
     FileUtils.rm_rf(data_path)
 
     File.open(credentials_path, 'w') do |f|
+      YAML.dump({}, f)
+    end
+
+    File.open(history_path, 'w') do |f|
       YAML.dump({}, f)
     end
   end
@@ -83,7 +87,7 @@ class CMSTest < Minitest::Test
     assert_equal "hello.txt does not exist.", session[:message]
   end
 
-  def test_edit_document_signed_in
+  def test_edit_page_signed_in
     create_document "changes.txt"
 
     get "/changes.txt/edit", {}, admin_credentials
@@ -93,7 +97,7 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, %q(<button type="submit")
   end
 
-  def test_edit_document_signed_out
+  def test_edit_page_signed_out
     create_document "changes.txt"
 
     get "/changes.txt/edit"
@@ -107,8 +111,10 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, "Sign In"
   end
 
-  def test_updating_document_signed_in
+  def test_editing_document_signed_in
     get '/', {}, admin_credentials
+
+    create_document "changes.txt"
 
     post "/changes.txt/edit", contents: "new content"
 
@@ -120,7 +126,7 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, "new content"
   end
 
-  def test_updating_document_signed_out
+  def test_editing_document_signed_out
     post "/changes.txt/edit", contents: "new content"
 
     assert_equal 302, last_response.status
@@ -157,7 +163,7 @@ class CMSTest < Minitest::Test
     post '/new', new_document: "   "
 
     assert_equal 422, last_response.status
-    assert_includes last_response.body, "Please enter the complete filename."
+    assert_includes last_response.body, "Please enter a valid filename"
   end
 
   def test_filename_created_signed_in
@@ -259,14 +265,14 @@ class CMSTest < Minitest::Test
     post "/users/signup", username: "admin", password: "supersecret"
 
     assert_equal 422, last_response.status
-    assert_includes last_response.body, "That username already exists."
+    assert_includes last_response.body, "Please try again."
   end
 
   def test_signup
     post "/users/signup", username: "bob", password: "supersecret"
 
     assert_equal 302, last_response.status
-    assert_equal "Hello, bob! A big welcome to our newest member", session[:message]
+    assert_equal "Welcome bob, our newest member!", session[:message]
     assert_equal "bob", session[:username]
 
     get last_response["location"]
@@ -283,6 +289,68 @@ class CMSTest < Minitest::Test
     assert_equal "You have been signed out.", session[:message]
 
     get last_response["location"]
+    assert_nil session[:username]
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "Sign In"
+  end
+
+  def test_upload_image_page_signed_in
+    get '/upload', {}, admin_credentials
+    assert_equal 200, last_response.status
+    assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
+    assert_includes last_response.body, 'The image you would like to upload:'
+  end
+
+  def test_upload_image_page_signed_out
+    get '/upload'
+    assert_equal 302, last_response.status
+    assert_equal 'You must be signed in to do that.', session[:message]
+
+    get last_response['location']
+    assert_nil session[:username]
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "Sign In"
+  end
+
+  def test_history_of_edits_signed_in
+    get '/', {}, admin_credentials
+
+    create_document "test.txt", "old content"
+
+    post "/test.txt/edit", contents: "new content"
+
+    assert_equal 302, last_response.status
+    assert_equal "test.txt has been updated.", session[:message]
+
+    get last_response['location']
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "View old content</a>"
+
+    get '/test.txt/history'
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "old content"
+  end
+
+  def test_history_of_edits_signed_out
+    get '/', {}, admin_credentials
+
+    create_document "test.txt"
+
+    post "/test.txt/edit", contents: "new content"
+
+    assert_equal 302, last_response.status
+    assert_equal "test.txt has been updated.", session[:message]
+
+    post '/users/signout'
+
+    assert_equal 302, last_response.status
+    assert_equal "You have been signed out.", session[:message]
+
+    get '/test.txt/history'
+    assert_equal 302, last_response.status
+    assert_equal 'You must be signed in to do that.', session[:message]
+
+    get last_response['location']
     assert_nil session[:username]
     assert_equal 200, last_response.status
     assert_includes last_response.body, "Sign In"

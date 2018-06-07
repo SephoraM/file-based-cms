@@ -8,6 +8,7 @@ gem 'erubis', '~> 2.7'
 
 gem 'minitest'
 gem 'rack-test'
+gem 'rubocop', '~>0.46.0'
 
 gem 'redcarpet'
 gem 'bcrypt'
