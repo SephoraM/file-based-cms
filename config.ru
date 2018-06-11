@@ -1,2 +1,2 @@
-require './todo'
+require './cms'
 run Sinatra::Application
